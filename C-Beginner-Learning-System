@@ -1,0 +1,451 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <limits.h>
+#include <math.h>
+
+/* Function declarations */
+void showMenu(void);
+void checkEvenOdd(void);
+void findLargest(void);
+void calculator(void);
+void multiplicationTable(void);
+void arraySumAverage(void);
+void checkNumber(void);
+
+int readInt(const char *prompt);
+double readDouble(const char *prompt);
+char readOperator(void);
+int isBlank(const char *text);
+
+/* Main function */
+int main(void)
+{
+    int choice;
+
+    do
+    {
+        showMenu();
+        choice = readInt("Enter your choice: ");
+
+        switch (choice)
+        {
+            case 1:
+                checkEvenOdd();
+                break;
+
+            case 2:
+                findLargest();
+                break;
+
+            case 3:
+                calculator();
+                break;
+
+            case 4:
+                multiplicationTable();
+                break;
+
+            case 5:
+                arraySumAverage();
+                break;
+
+            case 6:
+                checkNumber();
+                break;
+
+            case 0:
+                printf("\nThank you for using the program!\n");
+                printf("Keep learning C programming. Goodbye!\n");
+                break;
+
+            default:
+                printf("\nInvalid choice! Please select 0 to 6.\n");
+        }
+
+        printf("\n");
+
+    } while (choice != 0);
+
+    return 0;
+}
+
+/* Display the menu */
+void showMenu(void)
+{
+    printf("\n====================================\n\n");
+    printf("      C BEGINNER LEARNING SYSTEM\n");
+    printf("\n====================================\n\n");
+    printf("1. Check Even or Odd\n");
+    printf("2. Find the Largest of Two Numbers\n");
+    printf("3. Basic Calculator\n");
+    printf("4. Multiplication Table\n");
+    printf("5. Array Sum and Average\n");
+    printf("6. Check Positive, Negative or Zero\n");
+    printf("0. Exit\n");
+}
+
+/* Check whether a string contains only spaces */
+int isBlank(const char *text)
+{
+    while (*text != '\0')
+    {
+        if (*text != ' ' && *text != '\t' &&
+            *text != '\n' && *text != '\r')
+        {
+            return 0;
+        }
+
+        text++;
+    }
+
+    return 1;
+}
+
+/* Safely read an integer */
+int readInt(const char *prompt)
+{
+    char input[100];
+    char *end;
+    long value;
+    int ch;
+
+    while (1)
+    {
+        printf("%s", prompt);
+
+        if (fgets(input, sizeof(input), stdin) == NULL)
+        {
+            printf("\nInput ended. Exiting program.\n");
+            exit(EXIT_SUCCESS);
+        }
+
+        /* Detect an input line that is too long */
+        if (strchr(input, '\n') == NULL && !feof(stdin))
+        {
+            while ((ch = getchar()) != '\n' && ch != EOF)
+            {
+                /* Discard extra characters */
+            }
+
+            printf("Input is too long. Try again.\n");
+            continue;
+        }
+
+        if (isBlank(input))
+        {
+            printf("Input cannot be empty. Try again.\n");
+            continue;
+        }
+
+        errno = 0;
+        value = strtol(input, &end, 10);
+
+        if (end == input || errno == ERANGE ||
+            value < INT_MIN || value > INT_MAX)
+        {
+            printf("Invalid input! Enter a valid integer.\n");
+            continue;
+        }
+
+        while (*end == ' ' || *end == '\t' ||
+               *end == '\n' || *end == '\r')
+        {
+            end++;
+        }
+
+        if (*end != '\0')
+        {
+            printf("Invalid input! Enter numbers only.\n");
+            continue;
+        }
+
+        return (int)value;
+    }
+}
+
+/* Safely read a decimal number */
+double readDouble(const char *prompt)
+{
+    char input[100];
+    char *end;
+    double value;
+    int ch;
+
+    while (1)
+    {
+        printf("%s", prompt);
+
+        if (fgets(input, sizeof(input), stdin) == NULL)
+        {
+            printf("\nInput ended. Exiting program.\n");
+            exit(EXIT_SUCCESS);
+        }
+
+        if (strchr(input, '\n') == NULL && !feof(stdin))
+        {
+            while ((ch = getchar()) != '\n' && ch != EOF)
+            {
+                /* Discard extra characters */
+            }
+
+            printf("Input is too long. Try again.\n");
+            continue;
+        }
+
+        if (isBlank(input))
+        {
+            printf("Input cannot be empty. Try again.\n");
+            continue;
+        }
+
+        errno = 0;
+        value = strtod(input, &end);
+
+        if (end == input || errno == ERANGE || !isfinite(value))
+        {
+            printf("Invalid input! Enter a valid number.\n");
+            continue;
+        }
+
+        while (*end == ' ' || *end == '\t' ||
+               *end == '\n' || *end == '\r')
+        {
+            end++;
+        }
+
+        if (*end != '\0')
+        {
+            printf("Invalid input! Enter numbers only.\n");
+            continue;
+        }
+
+        return value;
+    }
+}
+
+/* Read and validate a calculator operator */
+char readOperator(void)
+{
+    char input[100];
+    char operation;
+    char *start;
+    int ch;
+
+    while (1)
+    {
+        printf("Enter an operator (+, -, *, /): ");
+
+        if (fgets(input, sizeof(input), stdin) == NULL)
+        {
+            printf("\nInput ended. Exiting program.\n");
+            exit(EXIT_SUCCESS);
+        }
+
+        if (strchr(input, '\n') == NULL && !feof(stdin))
+        {
+            while ((ch = getchar()) != '\n' && ch != EOF)
+            {
+                /* Discard extra characters */
+            }
+
+            printf("Input is too long. Try again.\n");
+            continue;
+        }
+
+        start = input;
+
+        while (*start == ' ' || *start == '\t')
+        {
+            start++;
+        }
+
+        operation = *start;
+        start++;
+
+        while (*start == ' ' || *start == '\t' ||
+               *start == '\n' || *start == '\r')
+        {
+            start++;
+        }
+
+        if ((*start == '\0') &&
+            (operation == '+' || operation == '-' ||
+             operation == '*' || operation == '/'))
+        {
+            return operation;
+        }
+
+        printf("Invalid operator! Enter +, -, * or /.\n");
+    }
+}
+
+/* Check even or odd */
+void checkEvenOdd(void)
+{
+    int number;
+
+    printf("\n--- EVEN OR ODD ---\n");
+    number = readInt("Enter an integer: ");
+
+    if (number % 2 == 0)
+    {
+        printf("%d is an even number.\n", number);
+    }
+    else
+    {
+        printf("%d is an odd number.\n", number);
+    }
+}
+
+/* Find the largest of two numbers */
+void findLargest(void)
+{
+    int first, second;
+
+    printf("\n--- LARGEST NUMBER ---\n");
+    first = readInt("Enter the first number: ");
+    second = readInt("Enter the second number: ");
+
+    if (first > second)
+    {
+        printf("%d is the largest number.\n", first);
+    }
+    else if (second > first)
+    {
+        printf("%d is the largest number.\n", second);
+    }
+    else
+    {
+        printf("Both numbers are equal.\n");
+    }
+}
+
+/* Basic calculator */
+void calculator(void)
+{
+    double first, second;
+    char operation;
+    double result;
+
+    printf("\n--- BASIC CALCULATOR ---\n");
+
+    first = readDouble("Enter the first number: ");
+    operation = readOperator();
+    second = readDouble("Enter the second number: ");
+
+    switch (operation)
+    {
+        case '+':
+            result = first + second;
+            break;
+
+        case '-':
+            result = first - second;
+            break;
+
+        case '*':
+            result = first * second;
+            break;
+
+        case '/':
+            if (second == 0.0)
+            {
+                printf("Error! Division by zero is not allowed.\n");
+                return;
+            }
+
+            result = first / second;
+            break;
+
+        default:
+            return;
+    }
+
+    if (!isfinite(result))
+    {
+        printf("Error! The result is too large to represent.\n");
+    }
+    else
+    {
+        printf("Result = %.2f\n", result);
+    }
+}
+
+/* Multiplication table */
+void multiplicationTable(void)
+{
+    int number, limit, i;
+
+    printf("\n--- MULTIPLICATION TABLE ---");
+
+    number = readInt("\nEnter a number: ");
+    limit = readInt("Enter the table limit (1-100): ");
+
+    if (limit < 1 || limit > 100)
+    {
+        printf("Invalid limit! Enter a value from 1 to 100.\n");
+        return;
+    }
+
+    for (i = 1; i <= limit; i++)
+    {
+        printf("%d x %d = %lld\n",
+               number, i, (long long)number * i);
+    }
+}
+
+/* Array sum and average */
+void arraySumAverage(void)
+{
+    int numbers[5];
+    int i;
+    long long sum = 0;
+
+    printf("\n--- ARRAY SUM AND AVERAGE ---\n");
+    printf("Enter five integers:\n");
+
+    for (i = 0; i < 5; i++)
+    {
+        char prompt[40];
+
+        snprintf(prompt, sizeof(prompt),
+                 "Number %d: ", i + 1);
+
+        numbers[i] = readInt(prompt);
+        sum += numbers[i];
+    }
+
+    printf("\nArray elements: ");
+
+    for (i = 0; i < 5; i++)
+    {
+        printf("%d ", numbers[i]);
+    }
+
+    printf("\nSum = %lld\n", sum);
+    printf("Average = %.2f\n", (double)sum / 5.0);
+}
+
+/* Check positive, negative or zero */
+void checkNumber(void)
+{
+    int number;
+
+    printf("\n--- NUMBER CHECKER ---\n");
+    number = readInt("Enter an integer: ");
+
+    if (number > 0)
+    {
+        printf("The number is positive.\n");
+    }
+    else if (number < 0)
+    {
+        printf("The number is negative.\n");
+    }
+    else
+    {
+        printf("The number is zero.\n");
+    }
+}
